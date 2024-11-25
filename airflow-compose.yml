@@ -5,4 +5,5 @@ services:
     - 9090:8080
     volumes:
     - ./dags:/opt/airflow/dags
+    - ./data:/opt/airflow/data
     command: standalone

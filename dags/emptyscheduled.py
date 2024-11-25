@@ -8,7 +8,7 @@ with DAG(
     dag_id='empty_schedule_timedelta',
     schedule=timedelta(seconds=20),
     start_date=dt(2024,11,1),
-    is_paused_upon_creation=False,
+    is_paused_upon_creation=True,
     catchup=False
     ):
     t1 = EmptyOperator(task_id='empty_task')
@@ -28,7 +28,7 @@ with DAG(
     dag_id='empty_schedule_cron',
     schedule='* * * * *', #
     start_date=dt(2024,11,1),
-    is_paused_upon_creation=False,
+    is_paused_upon_creation=True,
     catchup=False
     ):
     t1 = EmptyOperator(task_id='empty_task')
@@ -39,7 +39,7 @@ with DAG(
     dag_id='empty_catchup_enabled',
     schedule='* * * * *',
     start_date=dt(2024,11,25),
-    is_paused_upon_creation=False,
+    is_paused_upon_creation=True,
     catchup=True
     ):
     t1 = EmptyOperator(task_id='empty_task')
