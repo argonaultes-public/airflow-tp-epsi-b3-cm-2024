@@ -193,11 +193,9 @@ Solution, regarder la syntaxe de [Cron](https://en.wikipedia.org/wiki/Cron) qui 
 
 ## Lecture fichier local
 
-Télécharger un fichier d'exemple à l'adresse ci-dessous  et créer un job permettant de lire ce fichier.
+Télécharger un fichier d'exemple [access.log.1](https://drive.proton.me/urls/0GB9K6EFBG#Lv0VaF2SiJsg)  et créer un job permettant de lire ce fichier.
 
-```bash
-http://51.158.96.198/static/access.log.1
-```
+
 
 Aide : PythonOperator, BashOperator
 
