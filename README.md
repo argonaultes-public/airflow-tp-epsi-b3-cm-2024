@@ -6,6 +6,15 @@
 
 https://airflow.apache.org/docs/apache-airflow/stable/tutorial/index.html#
 
+## Préparation de l'environnement
+
+Sous Windows
+
+```pwsh
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
+```
+
+Source : [Microsoft Docs](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7.4)
 
 ## Avertissement
 
@@ -96,8 +105,49 @@ Aide : `EmptyOperator`
 Solution
 
 ```python
+from airflow import DAG
+from airflow.operators.empty import EmptyOperator
 
+with DAG(dag_id='empty'):
+    EmptyOperator(task_id='empty_task')
 ```
+
+Placer le script dans le dossier dags 
+
+```bash
+docker cp dags/empty.py airflowlocal:/opt/airflow/dags/
+```
+
+Si le DAG n'apparaît pas, se connecter avec Bash au container
+
+```bash
+docker exec -it airflowlocal bash 
+```
+
+Vérifier que le DAG a bien été lu
+
+```bash
+airflow dags list
+```
+
+Résultat attendu
+
+```bash
+dag_id | fileloc                    | owners  | is_paused
+=======+============================+=========+==========
+empty  | /opt/airflow/dags/empty.py | airflow | True     
+```
+
+Forcer la prise en compte du DAG
+
+```bash
+airflow dags reserialize
+```
+
+Possibilité ensuite de visualiser le DAG dans l'interface web
+
+![](./images/empty-dag.png)
+
 
 \newpage{}
 

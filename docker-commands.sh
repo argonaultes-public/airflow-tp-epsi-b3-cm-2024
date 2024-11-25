@@ -1,0 +1,1 @@
+docker run --name airflowlocal -p 9090:8080  apache/airflow:latest standalone
