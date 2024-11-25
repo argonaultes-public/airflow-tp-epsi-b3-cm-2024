@@ -158,7 +158,16 @@ Aide : `BashOperator`
 Solution
 
 ```python
+from airflow import DAG
+from airflow.operators.bash import BashOperator
 
+with DAG(
+    dag_id='test1',
+    schedule=None,
+    is_paused_upon_creation=True):
+    BashOperator(
+        task_id='hello',
+        bash_command='echo "hello world"')
 ```
 
 \newpage{}
@@ -171,7 +180,26 @@ Aide : `BashOperator`
 Solution, qui utilise la syntaxe `@decorator`.
 
 ```python
+from airflow.decorators import dag
+from airflow.operators.bash import BashOperator
+from airflow.models.baseoperator import chain
+from airflow.utils.trigger_rule import TriggerRule
 
+@dag()
+def testdeco():
+    t1 = BashOperator(
+        task_id='testdecotask1',
+        bash_command='echo "hello" && exit 1')
+    t2 = BashOperator(
+        task_id='testdecotask2',
+        bash_command='echo "after task1"'
+    )
+    t3 = BashOperator(
+        task_id='testdecotask3',
+        bash_command='echo "triggered only on error"',
+        trigger_rule=TriggerRule.ALL_FAILED
+    )
+    chain(t1, [t2, t3])
 ```
 
 \newpage{}
@@ -186,7 +214,53 @@ Solution, regarder la syntaxe de [Cron](https://en.wikipedia.org/wiki/Cron) qui 
 
 
 ```python
+from airflow import DAG
+from airflow.operators.empty import EmptyOperator
 
+from datetime import datetime as dt
+from datetime import timedelta
+
+with DAG(
+    dag_id='empty_schedule_timedelta',
+    schedule=timedelta(seconds=20),
+    start_date=dt(2024,11,1),
+    is_paused_upon_creation=False,
+    catchup=False
+    ):
+    t1 = EmptyOperator(task_id='empty_task')
+    t2 = EmptyOperator(task_id='empty_task_2')
+    t1 >> t2
+
+# * * * * * <command to execute>
+# | | | | |
+# | | | | day of the week (0–6) (Sunday to Saturday; 
+# | | | month (1–12)             7 is also Sunday on some systems)
+# | | day of the month (1–31)
+# | hour (0–23)
+# minute (0–59)
+
+
+with DAG(
+    dag_id='empty_schedule_cron',
+    schedule='* * * * *', #
+    start_date=dt(2024,11,1),
+    is_paused_upon_creation=False,
+    catchup=False
+    ):
+    t1 = EmptyOperator(task_id='empty_task')
+    t2 = EmptyOperator(task_id='empty_task_2')
+    t1 >> t2
+
+with DAG(
+    dag_id='empty_catchup_enabled',
+    schedule='* * * * *',
+    start_date=dt(2024,11,25),
+    is_paused_upon_creation=False,
+    catchup=True
+    ):
+    t1 = EmptyOperator(task_id='empty_task')
+    t2 = EmptyOperator(task_id='empty_task_2')
+    t1 >> t2
 ```
 
 \newpage{}
