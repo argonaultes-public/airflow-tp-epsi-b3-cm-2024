@@ -1,0 +1,16 @@
+{
+    "profiles": [
+        {
+            "id": 1,
+            "username": "bob"
+        },
+        {
+            "id": 2,
+            "username": "elfie"
+        },
+        {
+            "id": 3,
+            "username": "jack"
+        }
+    ]
+}
