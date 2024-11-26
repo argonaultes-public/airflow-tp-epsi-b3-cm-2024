@@ -420,7 +420,11 @@ Créer un job qui charge des données dans une base de données relationnelle
 
 Aide : `PostgresOperator`
 
+Créer la table customers_json
 
+```sql
+create table customers_json (description json);
+```
 
 Pour créer une instance de base de données relationnelle, inspirez-vous du fichier yaml interprétable par docker compose.
 
@@ -433,6 +437,7 @@ Solution 1 :
 Pout utiliser le fichier yaml correspondant :
 
 ```bash
+docker compose -f airflow-compose.yml up -d
 ```
 
 Solution 2 : 
@@ -441,32 +446,71 @@ Utilisez la commande suivante `docker run` pour créer le nouveau container au m
 ```bash
 ```
 
-Solution 3 :
-Créer un docker-compose déclarant les services airflow et postgresql.
 
-```yaml
-
-```
-
-Une fois l'instance démarrée, il est possible de s'y connecter avec l'outil CLI disponible dans le même container
-
-```bash
-```
-
-Pour charger des données, créer une table contenant une unique colonne de type text.
-
-```sql
-
-```
 
 Il faut préparer Airflow en déclarant la connexion à la base de données commandes.
 
+Créer un fichier yaml 
+
+```yaml
+- conn_id: db_postgres_crm
+  conn_type: postgres
+  description: ''
+  extra_dejson: {}
+  get_uri: postgres://crm_user:crm_pwd@dbservice:5432/crm
+  host: dbservice
+  id: '64'
+  is_encrypted: 'False'
+  is_extra_encrypted: 'False'
+  login: crm_user
+  password: crm_pwd
+  port: '5432'
+  schema: crm
+```
+
 ```bash
+airflow connections import crm_db_connection.yml 
+```
+
+ou directement avec `add`
+
+```bash
+airflow connections add db_postgres_crm_test --conn-uri "postgres://crm_user:crm_pwd@dbservice:5432/crm"
 ```
 
 Solution
 
 ```python
+from airflow import DAG
+from airflow.datasets import Dataset
+
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from airflow.operators.python import PythonOperator
+
+from datetime import datetime
+import json
+
+def read_file_in_json():
+    with open('/tmp/resp.json', 'r') as f:
+        return str(json.load(f)).replace('\'', '"')
+
+with DAG(
+    dag_id='load_data_into_db',
+    schedule=[Dataset('file://res.json')],
+    is_paused_upon_creation=False,
+    start_date=datetime(2020,1,1),
+    catchup=False):
+
+    PythonOperator(
+        task_id='read_file',
+        python_callable=read_file_in_json
+    )
+
+    SQLExecuteQueryOperator(
+        task_id='insert_data',
+        conn_id='db_postgres_crm',
+        sql="INSERT INTO customers_json VALUES ('{{task_instance.xcom_pull(task_ids='read_file')}}'::json)"
+    )
 
 ```
 
