@@ -1,0 +1,9 @@
+http_api_test:
+  conn_type: http
+  description: ''
+  extra: ''
+  host: 'https://my-json-server.typicode.com/argonaultes-public/airflow-tp-epsi-b3-cm-2024'
+  login: ''
+  password: null
+  port: null
+  schema: https

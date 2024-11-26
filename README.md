@@ -349,17 +349,17 @@ with DAG(
 
 ## Lecture données API public
 
-Créer un job permettant de lire une API public. Le point d'accès à cette API est `http://51.158.96.198:8080/lastprofile`.
+Créer un job permettant de lire une API public. Le point d'accès à cette API est `http://51.159.150.224:8080/lastprofile`.
 
 Pour créer une connexion dans Apache Airflow en CLI, le lien vers la [documentation](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html)
 
 Solution URI
 
 ```bash
-airflow connections add 'http_api_test' --conn-uri 'http://51.158.96.198:8080/http'
+airflow connections add 'http_api_test' --conn-uri 'https://my-json-server.typicode.com/argonaultes-public/airflow-tp-epsi-b3-cm-2024/http'
 ```
 
-Aide : `HttpOperator` et/ou `BashOperator`
+Aide : `HttpOperator` et/ou `BashOperator` et/ou `PythonOperator`
 
 Solution Transfert information entre tâches
 
@@ -375,7 +375,40 @@ value = task_instance.xcom_pull(task_ids='pushing_task')
 Solution Script Python
 
 ```python
+from airflow import DAG
 
+from datetime import datetime
+
+from airflow.providers.http.operators.http import HttpOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+import json
+
+def process_json_data(task_instance):
+    with open('/tmp/resp.json', 'w') as f:
+        f.write(json.dumps(task_instance.xcom_pull(task_ids='get_api_data')))
+
+with DAG(
+    dag_id='dag_api_data',
+    start_date=datetime.now(),
+    schedule=None,
+    is_paused_upon_creation=False):
+    read_http_file = HttpOperator(
+        task_id='get_api_data',
+        http_conn_id='http_api_test',
+        method='GET',
+        endpoint='/profiles',
+        response_filter=lambda response : response.json()[1],
+        log_response=True
+    )
+    write_to_file_bash = BashOperator(
+        task_id='write_to_file_bash',
+        bash_command="echo {{ task_instance.xcom_pull(task_ids='get_api_data') }} > /tmp/res.json"
+        )
+    write_to_file_python = PythonOperator(
+        task_id='write_to_file_python',
+        python_callable=process_json_data)
+    read_http_file >> [write_to_file_bash, write_to_file_python]
 ```
 \newpage{}
 
