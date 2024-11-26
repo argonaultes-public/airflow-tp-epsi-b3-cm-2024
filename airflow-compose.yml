@@ -7,3 +7,18 @@ services:
     - ./dags:/opt/airflow/dags
     - ./data:/opt/airflow/data
     command: standalone
+
+  dbservice:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: crm
+      POSTGRES_USER: crm_user
+      POSTGRES_PASSWORD: crm_pwd
+  
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: gael@argonaultes.fr
+      PGADMIN_DEFAULT_PASSWORD: superpwd
+    ports:
+      - 9191:80

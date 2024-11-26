@@ -456,6 +456,7 @@ Une fois l'instance démarrée, il est possible de s'y connecter avec l'outil CL
 Pour charger des données, créer une table contenant une unique colonne de type text.
 
 ```sql
+
 ```
 
 Il faut préparer Airflow en déclarant la connexion à la base de données commandes.
@@ -569,7 +570,7 @@ Aide : `Data-aware scheduling`, `PostgresOperator`
 
 Pour en savoir plus sur [Data-aware scheduling](https://airflow.apache.org/docs/apache-airflow/stable/authoring-and-scheduling/datasets.html).
 
-Une URI doit respecter la [RFC3986](https://www.rfc-editor.org/rfc/rfc3986).
+Une URI doit respecter la [RFC8820](https://www.rfc-editor.org/rfc/rfc8820).
 
 Solution
 

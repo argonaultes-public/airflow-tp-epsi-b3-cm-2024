@@ -1,4 +1,5 @@
 from airflow import DAG
+from airflow.datasets import Dataset
 
 from datetime import datetime
 
@@ -26,9 +27,10 @@ with DAG(
     )
     write_to_file_bash = BashOperator(
         task_id='write_to_file_bash',
-        bash_command="echo {{ task_instance.xcom_pull(task_ids='get_api_data') }} > /tmp/res.json"
+        bash_command="sleep 10 && echo {{ task_instance.xcom_pull(task_ids='get_api_data') }} > /tmp/res.json"
         )
     write_to_file_python = PythonOperator(
         task_id='write_to_file_python',
-        python_callable=process_json_data)
+        python_callable=process_json_data,
+        outlets=[Dataset('file://res.json')])
     read_http_file >> [write_to_file_bash, write_to_file_python]
